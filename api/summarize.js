@@ -178,8 +178,8 @@ module.exports = async (req, res) => {
 
     // Prepare system message based on whether there's a custom prompt
     const systemMessage = customPrompt ? 
-      `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". If the question cannot be answered based on the content provided, please state that clearly.` :
-      `You are an intelligent content analyzer. Your task is to provide a concise 2-3 sentence summary of the main points or key information from the content. For social media or discussion content, focus on the predominant opinions and overall sentiment. For regular web pages, focus on the main factual information and key points. Format the response for easy reading in a browser extension popup.`;
+      `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". Keep your answer extremely brief - use as few words as possible. If the question cannot be answered based on the content provided, just say so briefly.` :
+      `You are an ultra-concise content summarizer. Your task is to extract only the most essential information from the content in 1-2 very short sentences or bullet points. Prioritize brevity above all else. For social media, extract only the core sentiment. For web pages, extract only the key point. Format for quick reading in a small popup.`;
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
@@ -194,8 +194,8 @@ module.exports = async (req, res) => {
           content: `Please analyze this web content:\n\n${textToSummarize}`
         }
       ],
-      max_tokens: 150,
-      temperature: 0.4,
+      max_tokens: 75,
+      temperature: 0.2,
     });
     
     // Extract and return the summary
