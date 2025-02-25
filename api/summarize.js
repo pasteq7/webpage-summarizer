@@ -153,19 +153,34 @@ module.exports = async (req, res) => {
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview", // You can use a different model as needed
+      model: "gpt-4o-mini", // Using the standard model
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that summarizes web pages. Create a very concise summary of the provided web page content. The summary should be 2-3 short phrases maximum and capture the most important information from the page. Focus on factual information and avoid subjective opinions. The summary should be easily scannable in a browser extension popup."
+          content: `You are an intelligent content analyzer specializing in extracting opinions and sentiment from social media and discussion pages. Your task is to:
+
+For social media and discussion content:
+- Focus on identifying the predominant opinions and viewpoints in the comments
+- Analyze the overall sentiment (positive, negative, mixed, neutral)
+- Highlight the main arguments or perspectives that are getting the most engagement
+- Note any significant counter-arguments or minority opinions
+- Quantify the consensus when possible (e.g., "majority supports X", "evenly split between Y and Z")
+- Ignore off-topic or irrelevant comments
+
+For regular web pages:
+- Focus on the main factual information and key points
+- Identify the primary purpose or message
+- Extract the most relevant details
+
+Keep the summary concise (2-3 sentences) and focus on what people think/feel about the topic rather than just what they're discussing. Format for easy reading in a browser extension popup.`
         },
         {
           role: "user",
-          content: `Please summarize this web page content in 2-3 phrases maximum:\n\nURL: ${url}\n\n${textToSummarize}`
+          content: `Please analyze and summarize this web content:\n\nURL: ${url}\n\n${textToSummarize}`
         }
       ],
       max_tokens: 150,
-      temperature: 0.3, // Lower temperature for more deterministic outputs
+      temperature: 0.4, // Slightly increased for better handling of diverse content
     });
     
     // Extract and return the summary
