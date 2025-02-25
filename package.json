@@ -1,0 +1,22 @@
+{
+  "name": "webpage-summarizer-api",
+  "version": "1.0.0",
+  "description": "Vercel serverless API for summarizing web pages using OpenAI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vercel",
+    "serverless",
+    "openai",
+    "summarizer",
+    "chrome-extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "openai": "^4.24.1",
+    "cors": "^2.8.5"
+  }
+}
