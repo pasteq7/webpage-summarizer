@@ -56,80 +56,76 @@ const rateLimiter = {
 // Clean up rate limiter every 5 minutes
 setInterval(() => rateLimiter.cleanup(), 5 * 60 * 1000);
 
-// Configure CORS middleware
-const corsMiddleware = cors({
-  origin: '*', // Configure appropriately for production
+// CORS options
+const corsOptions = {
+  origin: '*', // Be more restrictive in production
   methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
-});
+  allowedHeaders: ['Content-Type'],
+  maxAge: 86400 // 24 hours
+};
 
 // Helper function to handle CORS preflight requests
-const handleCors = (req, res) => {
-  return new Promise((resolve, reject) => {
-    corsMiddleware(req, res, (result) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-      return resolve(result);
+const handleCors = async (req, res) => {
+  await new Promise((resolve, reject) => {
+    cors(corsOptions)(req, res, (err) => {
+      if (err) reject(err);
+      resolve();
     });
   });
 };
 
 // Helper to extract the client IP address
 const getClientIp = (req) => {
-  return req.headers['x-forwarded-for'] || 
-         req.headers['x-real-ip'] || 
-         req.connection.remoteAddress || 
-         '0.0.0.0';
+  return req.headers['x-forwarded-for']?.split(',')[0].trim() || 
+         req.socket.remoteAddress;
 };
 
 // Helper to validate URL format
 const isValidUrl = (url) => {
+  if (!url) return true; // URL is optional now
   try {
-    const parsedUrl = new URL(url);
-    return ['http:', 'https:'].includes(parsedUrl.protocol);
-  } catch (e) {
+    new URL(url);
+    return true;
+  } catch {
     return false;
   }
 };
 
 // Helper to validate the request body
 const validateRequest = (body) => {
-  // Check payload size (5MB limit)
-  const payloadSize = JSON.stringify(body).length;
-  if (payloadSize > 5 * 1024 * 1024) {
-    return 'Request payload too large. Maximum size is 5MB';
-  }
-
+  // Check if body exists
   if (!body) {
-    return 'Request body is missing';
-  }
-  
-  if (!body.url) {
-    return 'URL is required';
+    return 'Request body is required';
   }
 
-  if (!isValidUrl(body.url)) {
-    return 'Invalid URL format. URL must start with http:// or https://';
-  }
-  
-  if (!body.content && !body.title) {
-    return 'At least one of content or title is required';
+  // Check URL if provided
+  if (body.url && !isValidUrl(body.url)) {
+    return 'Invalid URL format';
   }
 
-  // Limit individual field sizes
-  if (body.content && body.content.length > 1000000) { // 1MB for content
-    return 'Content too large. Maximum length is 1MB';
+  // Check content
+  if (!body.content || typeof body.content !== 'string') {
+    return 'Content is required and must be a string';
   }
 
-  if (body.title && body.title.length > 1000) { // 1KB for title
-    return 'Title too large. Maximum length is 1KB';
+  if (body.content.length < 10) {
+    return 'Content is too short to summarize';
   }
 
-  if (body.description && body.description.length > 5000) { // 5KB for description
-    return 'Description too large. Maximum length is 5KB';
+  if (body.content.length > 50000) {
+    return 'Content is too long. Please provide a shorter text';
   }
-  
+
+  // Check title if provided
+  if (body.title && typeof body.title !== 'string') {
+    return 'Title must be a string';
+  }
+
+  // Check custom prompt if provided
+  if (body.customPrompt && typeof body.customPrompt !== 'string') {
+    return 'Custom prompt must be a string';
+  }
+
   return null;
 };
 
@@ -166,7 +162,7 @@ module.exports = async (req, res) => {
     }
     
     // Extract data from request
-    const { url, title, content, description } = req.body;
+    const { url, title, content, customPrompt } = req.body;
     
     // Prepare content for summarization
     let textToSummarize = '';
@@ -175,45 +171,31 @@ module.exports = async (req, res) => {
       textToSummarize += `Title: ${title}\n\n`;
     }
     
-    if (description) {
-      textToSummarize += `Description: ${description}\n\n`;
-    }
-    
     if (content) {
       // Limit content length to avoid token limits
       textToSummarize += `Content: ${content.substring(0, 15000)}`;
     }
+
+    // Prepare system message based on whether there's a custom prompt
+    const systemMessage = customPrompt ? 
+      `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". If the question cannot be answered based on the content provided, please state that clearly.` :
+      `You are an intelligent content analyzer. Your task is to provide a concise 2-3 sentence summary of the main points or key information from the content. For social media or discussion content, focus on the predominant opinions and overall sentiment. For regular web pages, focus on the main factual information and key points. Format the response for easy reading in a browser extension popup.`;
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using the standard model
+      model: "gpt-3.5-turbo", // Using a more appropriate model name
       messages: [
         {
           role: "system",
-          content: `You are an intelligent content analyzer specializing in extracting opinions and sentiment from social media and discussion pages. Your task is to:
-
-For social media and discussion content:
-- Focus on identifying the predominant opinions and viewpoints in the comments
-- Analyze the overall sentiment (positive, negative, mixed, neutral)
-- Highlight the main arguments or perspectives that are getting the most engagement
-- Note any significant counter-arguments or minority opinions
-- Quantify the consensus when possible (e.g., "majority supports X", "evenly split between Y and Z")
-- Ignore off-topic or irrelevant comments
-
-For regular web pages:
-- Focus on the main factual information and key points
-- Identify the primary purpose or message
-- Extract the most relevant details
-
-Keep the summary concise (2-3 sentences) and focus on what people think/feel about the topic rather than just what they're discussing. Format for easy reading in a browser extension popup.`
+          content: systemMessage
         },
         {
           role: "user",
-          content: `Please analyze and summarize this web content:\n\nURL: ${url}\n\n${textToSummarize}`
+          content: `Please analyze this web content:\n\n${textToSummarize}`
         }
       ],
       max_tokens: 150,
-      temperature: 0.4, // Slightly increased for better handling of diverse content
+      temperature: 0.4,
     });
     
     // Extract and return the summary
