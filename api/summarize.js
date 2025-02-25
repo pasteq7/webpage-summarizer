@@ -83,8 +83,24 @@ const getClientIp = (req) => {
          '0.0.0.0';
 };
 
+// Helper to validate URL format
+const isValidUrl = (url) => {
+  try {
+    const parsedUrl = new URL(url);
+    return ['http:', 'https:'].includes(parsedUrl.protocol);
+  } catch (e) {
+    return false;
+  }
+};
+
 // Helper to validate the request body
 const validateRequest = (body) => {
+  // Check payload size (5MB limit)
+  const payloadSize = JSON.stringify(body).length;
+  if (payloadSize > 5 * 1024 * 1024) {
+    return 'Request payload too large. Maximum size is 5MB';
+  }
+
   if (!body) {
     return 'Request body is missing';
   }
@@ -92,9 +108,26 @@ const validateRequest = (body) => {
   if (!body.url) {
     return 'URL is required';
   }
+
+  if (!isValidUrl(body.url)) {
+    return 'Invalid URL format. URL must start with http:// or https://';
+  }
   
   if (!body.content && !body.title) {
     return 'At least one of content or title is required';
+  }
+
+  // Limit individual field sizes
+  if (body.content && body.content.length > 1000000) { // 1MB for content
+    return 'Content too large. Maximum length is 1MB';
+  }
+
+  if (body.title && body.title.length > 1000) { // 1KB for title
+    return 'Title too large. Maximum length is 1KB';
+  }
+
+  if (body.description && body.description.length > 5000) { // 5KB for description
+    return 'Description too large. Maximum length is 5KB';
   }
   
   return null;
@@ -153,7 +186,7 @@ module.exports = async (req, res) => {
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Using a valid model
+      model: "gpt-4o-mini", // Using the standard model
       messages: [
         {
           role: "system",
