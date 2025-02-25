@@ -178,8 +178,8 @@ module.exports = async (req, res) => {
 
     // Prepare system message based on whether there's a custom prompt
     const systemMessage = customPrompt ? 
-      `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". If the question cannot be answered based on the content provided, please state that clearly.` :
-      `You are an intelligent content analyzer. Your task is to provide a concise 2-3 sentence summary of the main points or key information from the content. For social media or discussion content, focus on the predominant opinions and overall sentiment. For regular web pages, focus on the main factual information and key points. Format the response for easy reading in a browser extension popup.`;
+      `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". Be concise and direct - use minimal words while preserving all important details. If the question cannot be answered based on the content provided, please state that clearly.` :
+      `You are an intelligent content analyzer. Your task is to provide a concise summary of the main points from the content using minimal words. Prioritize information density over verbosity. For social media or discussion content, focus on the predominant opinions and overall sentiment. For regular web pages, focus on the main factual information and key points. Use bullet points when appropriate. Format the response for easy reading in a browser extension popup.`;
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
@@ -194,8 +194,8 @@ module.exports = async (req, res) => {
           content: `Please analyze this web content:\n\n${textToSummarize}`
         }
       ],
-      max_tokens: 150,
-      temperature: 0.4,
+      max_tokens: 200,
+      temperature: 0.3,
     });
     
     // Extract and return the summary
