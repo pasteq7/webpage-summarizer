@@ -19,7 +19,6 @@ The project consists of two main components:
 
 ## Installation
 
-### For Users
 
 To install the Web Page Summarizer extension:
 
@@ -27,11 +26,6 @@ To install the Web Page Summarizer extension:
    - Download the latest release ZIP file from the [Releases page](https://github.com/pasteq7/webpage-summarizer/releases)
 
 2. **Install in Chrome**:
-   - If downloading from Chrome Web Store:
-     - Click the "Add to Chrome" button
-     - Click "Add extension" in the confirmation dialog
-   
-   - If installing manually from GitHub:
      - Download the `.zip` file from the latest release
      - Extract the ZIP file to a folder on your computer
      - Open Chrome and navigate to `chrome://extensions/`
@@ -44,43 +38,6 @@ To install the Web Page Summarizer extension:
    - Click on the extension icon in your browser toolbar
    - Press the "Summarize" button on any web page you want to summarize
 
-### Local Development
-
-1. Clone this repository:
-   ```
-   git clone https://github.com/pasteq7/webpage-summarizer.git
-   cd webpage-summarizer
-   ```
-
-2. Install dependencies:
-   ```
-   npm install
-   ```
-
-3. Create a `.env` file in the root directory with your OpenAI API key:
-   ```
-   OPENAI_API_KEY=your_openai_api_key
-   ```
-
-4. Load the extension in Chrome:
-   - Open Chrome and navigate to `chrome://extensions/`
-   - Enable "Developer mode" in the top-right corner
-   - Click "Load unpacked" and select the `extension` folder from this repository
-
-### Deployment
-
-The API is configured for deployment on Vercel:
-
-1. Connect your GitHub repository to Vercel
-2. Add your `OPENAI_API_KEY` as an environment variable in the Vercel project settings
-3. Deploy the project
-
-## Usage
-
-1. Click on the extension icon in your browser toolbar
-2. Press the "Summarize" button to get a quick summary of the current page
-3. For specific questions, toggle the settings panel and enter a custom prompt
-4. Switch between dark and light themes using the theme toggle button
 
 ## Technical Details
 
@@ -94,11 +51,3 @@ The API is configured for deployment on Vercel:
 The API implements a simple rate limiting mechanism:
 - 5 requests per minute per IP address
 - Automatic cleanup of rate limiting data every 5 minutes
-
-## License
-
-MIT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
