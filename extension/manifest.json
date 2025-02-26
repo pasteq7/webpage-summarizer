@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Web Page Summarizer",
+  "version": "1.0.0",
+  "description": "Summarize web pages in 2-3 phrases using AI",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://summarize-api-two.vercel.app/*",
+    "<all_urls>"
+  ]
+}
