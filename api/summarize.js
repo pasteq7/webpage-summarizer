@@ -183,7 +183,7 @@ module.exports = async (req, res) => {
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using a more appropriate model name
+      model: "gpt-4o-mini", 
       messages: [
         {
           role: "system",
