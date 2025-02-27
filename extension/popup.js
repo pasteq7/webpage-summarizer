@@ -52,18 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // API endpoints configuration
   const config = {
-    development: 'http://localhost:3000/api/summarize',
     production: 'https://summarize-api-two.vercel.app/api/summarize'
-  };
-
-  // Check if we can connect to local development server
-  const checkLocalServer = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/health');
-      return response.ok;
-    } catch (error) {
-      return false;
-    }
   };
 
   // Initialize API endpoint
@@ -196,10 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Update loading text with content size information
       showLoading(pageContent.content);
-
-      // Check if local server is available
-      const isLocalAvailable = await checkLocalServer();
-      API_ENDPOINT = isLocalAvailable ? config.development : config.production;
 
       // Prepare the request body
       const requestBody = {
