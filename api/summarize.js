@@ -179,7 +179,7 @@ module.exports = async (req, res) => {
     // Prepare system message based on whether there's a custom prompt
     const systemMessage = customPrompt ? 
       `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". Format your response like a classic telegram - extremely brief, direct, formal tone, and urgent. Use as few words as possible. No "STOP" markers. If the question cannot be answered based on the content provided, just say so briefly.` :
-      `You are a telegram-style content summarizer. Extract only the most essential information from the content. Format like a classic telegram - extremely brief, direct, formal tone, and urgent. Use 1-2 very short sentences or bullet points. Prioritize brevity above all else. For social media, extract only core sentiment. For web pages, extract only key point. No "STOP" markers. Use same language as analyzed content.`;
+      `You are a content analyzer specializing in highlighting key information. Extract and HIGHLIGHT the most important parts of the content. For highlighting, use **double asterisks** around critical information. Format like a concise telegram - brief, direct, and formal. Use short bullet points for main ideas when appropriate. Prioritize the most significant facts, claims, or statistics. Extract only essential information. Completely ignore navigation elements, ads, and irrelevant content. Use same language as analyzed content.`;
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
@@ -191,11 +191,11 @@ module.exports = async (req, res) => {
         },
         {
           role: "user",
-          content: `Please analyze this web content:\n\n${textToSummarize}`
+          content: `Please analyze this web content and highlight the most important parts:\n\n${textToSummarize}`
         }
       ],
-      max_tokens: 75,
-      temperature: 0.2,
+      max_tokens: 150,
+      temperature: 0.3,
     });
     
     // Extract and return the summary

@@ -5,6 +5,8 @@ A Chrome extension that uses AI to summarize web pages in 2-3 phrases, providing
 ## Features
 
 - **Instant Summaries**: Summarize any web page with a single click
+- **Text Highlighting**: Important information is visually highlighted for quick scanning
+- **Improved Content Extraction**: Smart algorithms to extract main content while ignoring navigation and ads
 - **Custom Prompts**: Ask specific questions about the page content
 - **Dark/Light Mode**: Toggle between themes for comfortable viewing
 - **Responsive Design**: Clean, modern UI that works across devices

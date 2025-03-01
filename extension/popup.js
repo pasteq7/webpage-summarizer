@@ -117,6 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clean up the text by removing extra spaces and newlines
     text = text.trim().replace(/\n{3,}/g, '\n\n');
     
+    // Replace markdown highlighting with HTML spans for highlighting
+    // This will convert **highlighted text** into <span class="highlight">highlighted text</span>
+    text = text.replace(/\*\*(.+?)\*\*/g, '<span class="highlight">$1</span>');
+    
     // Check if text contains bullet points (lines starting with - or •)
     const hasBulletPoints = /^[-•*]\s/m.test(text);
     
@@ -144,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       // For very short summaries, make them stand out with telegram style
       if (text.length < 100 && !text.includes('\n')) {
-        return `<p class="highlight telegram-style">${text}</p>`;
+        return `<p class="telegram-style">${text}</p>`;
       }
       
       // Regular paragraph formatting with telegram style
@@ -176,20 +180,73 @@ document.addEventListener('DOMContentLoaded', () => {
       const [{ result: pageContent }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: () => {
-          // Get all text content from the page
-          const textContent = document.body.innerText;
+          // Improved content extraction algorithm
+          function extractMainContent() {
+            // Common selectors for main content
+            const contentSelectors = [
+              'article', 'main', '.main-content', '.content', '.post-content',
+              '.article', '[role="main"]', '.entry-content', '#content'
+            ];
+            
+            // Common selectors for elements to exclude
+            const excludeSelectors = [
+              'nav', 'header', 'footer', 'aside', '.sidebar', '.navigation', '.menu',
+              '.ad', '.ads', '.advertisement', '.promotional', '.comments', '.comment-section',
+              '.related', '.recommended', '.social-share', '.share-buttons', '.newsletter',
+              '[role="banner"]', '[role="navigation"]', '[role="complementary"]'
+            ];
+            
+            // Try to find main content container
+            let mainElement = null;
+            for (const selector of contentSelectors) {
+              const element = document.querySelector(selector);
+              if (element && element.innerText.length > 500) {
+                mainElement = element;
+                break;
+              }
+            }
+            
+            // If no main content container found, use body but exclude known non-content elements
+            if (!mainElement) {
+              mainElement = document.body;
+            }
+            
+            // Clone the element to avoid modifying the actual page
+            const clone = mainElement.cloneNode(true);
+            
+            // Remove non-content elements from the clone
+            excludeSelectors.forEach(selector => {
+              const elements = clone.querySelectorAll(selector);
+              elements.forEach(el => el.remove());
+            });
+            
+            // Extract text from the cleaned content
+            return clone.innerText;
+          }
+          
+          const textContent = extractMainContent();
           const title = document.title;
           return { title, content: textContent };
         }
       });
       
+      // Define maximum character limit
+      const MAX_CHAR_LIMIT = 45000;
+      
+      // Truncate content if it exceeds the limit
+      let contentToSend = pageContent.content;
+      
+      if (contentToSend.length > MAX_CHAR_LIMIT) {
+        contentToSend = contentToSend.substring(0, MAX_CHAR_LIMIT);
+      }
+      
       // Update loading text with content size information
-      showLoading(pageContent.content);
+      showLoading(contentToSend);
 
       // Prepare the request body
       const requestBody = {
         title: pageContent.title,
-        content: pageContent.content,
+        content: contentToSend,
         customPrompt: prompt
       };
 
@@ -214,6 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Show the content container before updating the summary
       showContent();
+      
       summaryContent.innerHTML = formatSummary(data.summary);
 
     } catch (error) {
