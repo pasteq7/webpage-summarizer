@@ -184,42 +184,51 @@ h1 {
 
 /* Telegram style formatting */
 .telegram-style {
-  font-family: 'Roboto Condensed', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
   letter-spacing: 0.01em;
-  line-height: 1.4;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  background-color: rgba(var(--primary-color-rgb), 0.05);
-  border-radius: 0.25rem;
+  line-height: 1.5;
+  padding: 0.75rem 1rem;
+  border: none;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px var(--shadow-color);
+  margin-bottom: 0.5rem;
 }
 
 .telegram-style p {
   margin-bottom: 0.75rem;
+  font-size: 0.95rem;
 }
 
 .telegram-style ul {
   list-style-type: none;
   padding-left: 0;
+  margin-top: 0.25rem;
 }
 
 .telegram-style li {
   margin-bottom: 0.5rem;
   position: relative;
-  padding-left: 1rem;
+  padding-left: 1.25rem;
+  font-size: 0.95rem;
 }
 
 .telegram-style li:before {
   content: "•";
   position: absolute;
-  left: 0;
+  left: 0.25rem;
+  color: var(--primary-color);
 }
 
 .telegram-style .highlight {
-  font-size: 1.125rem;
-  font-weight: 700;
-  text-align: center;
-  letter-spacing: 0.05em;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  letter-spacing: normal;
+  color: var(--text-color);
+  line-height: 1.4;
+  margin: 0;
 }
 
 /* Button styles */

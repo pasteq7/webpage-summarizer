@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hasBulletPoints = /^[-•*]\s/m.test(text);
     
     if (hasBulletPoints) {
-      // Format bullet points as a list with telegram style
+      // Format bullet points as a list with improved styling
       return `<div class="telegram-style">` + 
         text.split('\n')
           .filter(line => line.trim())
@@ -145,12 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
           .replace(/<\/li>$/, '</li></ul>') +
         `</div>`;
     } else {
-      // For very short summaries, make them stand out with telegram style
-      if (text.length < 100 && !text.includes('\n')) {
-        return `<p class="highlight telegram-style">${text}</p>`;
+      // For short summaries, display them with clean styling
+      if (text.length < 150 && !text.includes('\n')) {
+        return `<div class="telegram-style"><p class="highlight">${text}</p></div>`;
       }
       
-      // Regular paragraph formatting with telegram style
+      // Regular paragraph formatting
       return `<div class="telegram-style">` +
         text.split('\n')
           .filter(para => para.trim())

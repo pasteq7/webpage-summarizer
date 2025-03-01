@@ -179,7 +179,16 @@ module.exports = async (req, res) => {
     // Prepare system message based on whether there's a custom prompt
     const systemMessage = customPrompt ? 
       `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". Format your response like a classic telegram - extremely brief, direct, formal tone, and urgent. Use as few words as possible. No "STOP" markers. If the question cannot be answered based on the content provided, just say so briefly.` :
-      `You are a telegram-style content summarizer. Extract only the most essential information from the content. Format like a classic telegram - extremely brief, direct, formal tone, and urgent. Use 1-2 very short sentences or bullet points. Prioritize brevity above all else. For social media, extract only core sentiment. For web pages, extract only key point. For articles don't give same information available in the article title.No "STOP" markers. Use same language as analyzed content.`;
+      `You are a concise content summarizer. Extract only the most essential information from the content. 
+Format your response in a clean, minimal style with these rules:
+1. Be extremely brief - use 1-2 very short sentences or bullet points.
+2. For articles, focus on the key insight or main point that goes beyond what the title already conveys.
+3. For news, extract the central development or most important detail.
+4. For social media, capture only the core sentiment or action.
+5. Use clear, direct language without unnecessary words.
+6. Maintain a neutral, informative tone.
+7. Use the same language as the analyzed content.
+8. Never repeat information that's already in the title.`;
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
