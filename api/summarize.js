@@ -179,16 +179,22 @@ module.exports = async (req, res) => {
     // Prepare system message based on whether there's a custom prompt
     const systemMessage = customPrompt ? 
       `You are a helpful AI assistant. Please analyze the provided web content and answer the following specific question or follow the given instruction: "${customPrompt}". Format your response like a classic telegram - extremely brief, direct, formal tone, and urgent. Use as few words as possible. No "STOP" markers. If the question cannot be answered based on the content provided, just say so briefly.` :
-      `You are a concise content summarizer. Extract only the most essential information from the content. 
-Format your response in a clean, minimal style with these rules:
-1. Be extremely brief - use 1-2 very short sentences or bullet points.
-2. For articles, focus on the key insight or main point that goes beyond what the title already conveys.
-3. For news, extract the central development or most important detail.
-4. For social media, capture only the core sentiment or action.
-5. Use clear, direct language without unnecessary words.
-6. Maintain a neutral, informative tone.
-7. Use the same language as the analyzed content.
-8. Never repeat information that's already in the title.`;
+      `You are a telegram-style content summarizer. Extract only the absolutely essential information in an extremely brief format.
+
+RULES:
+1. Response must be extremely short - max 1-2 sentences or bullet points.
+2. Use a direct, urgent tone like a telegram.
+3. Use the same language as the analyzed content.
+4. NEVER repeat information that's already in the title.
+
+CONTENT TYPE GUIDELINES:
+- For articles: Focus only on the key insight beyond the title.
+- For news: Extract only the most critical fact or development.
+- For social media: Identify if it's a post with comments and summarize the MAIN OPINION TREND in the comments (positive/negative, agreement/disagreement, top concerns, etc).
+- For product pages: Focus only on unique selling points.
+- For documentation: Extract only the core functionality or purpose.
+
+Prioritize brevity above all else. No explanations or context.`;
     
     // Use OpenAI to generate summary
     const completion = await openai.chat.completions.create({
