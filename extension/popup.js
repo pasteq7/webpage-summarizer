@@ -117,9 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clean up the text by removing extra spaces and newlines
     text = text.trim().replace(/\n{3,}/g, '\n\n');
     
-    // Replace markdown highlighting with HTML spans for highlighting
-    // This will convert **highlighted text** into <span class="highlight">highlighted text</span>
-    text = text.replace(/\*\*(.+?)\*\*/g, '<span class="highlight">$1</span>');
+    // Remove any markdown highlighting (convert **text** to just text)
+    text = text.replace(/\*\*(.+?)\*\*/g, '$1');
     
     // Check if text contains bullet points (lines starting with - or •)
     const hasBulletPoints = /^[-•*]\s/m.test(text);
@@ -148,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       // For very short summaries, make them stand out with telegram style
       if (text.length < 100 && !text.includes('\n')) {
-        return `<p class="telegram-style">${text}</p>`;
+        return `<p class="highlight telegram-style">${text}</p>`;
       }
       
       // Regular paragraph formatting with telegram style
